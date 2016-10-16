@@ -458,15 +458,27 @@ class MailAlerts extends Module
 		}
 	}
 
+	public function hookDisplayProductButtons($params)
+	{
+		return $this->hookActionProductOutOfStock($params);
+	}
+
 	public function hookActionProductOutOfStock($params)
 	{
+		if (is_array($params['product'])) {
+			$out_of_stock = $params['product']['out_of_stock'];
+			$id_product = (int) $params['product']['id'];
+		} else {
+			$out_of_stock = $params['product']->out_of_stock;
+			$id_product = (int) $params['product']->id;
+		}
+
 		if (!$this->customer_qty ||
 			!Configuration::get('PS_STOCK_MANAGEMENT') ||
-			Product::isAvailableWhenOutOfStock($params['product']->out_of_stock))
+			Product::isAvailableWhenOutOfStock($out_of_stock))
 			return;
 
 		$context = Context::getContext();
-		$id_product = (int)$params['product']->id;
 		$id_product_attribute = 0;
 		$id_customer = (int)$context->customer->id;
 
